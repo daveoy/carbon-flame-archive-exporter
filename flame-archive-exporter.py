@@ -59,17 +59,20 @@ class ArchInfo:
         self.headers = [self.get_header_info(x) for x in self.header_files]
     def get_headers(self):
         archive_headers = []
-        for r,d,f in os.walk(self.ARCHIVE_PATH):
-            if 'Central_OTOC' in r or "Central_OTOC" in d or "Central_OTOC" in f:
-                continue
-            if len(d) == 0:
-                for _f in f:
-                    if '.' not in _f:
-                        if _f.endswith('-lock'):
-                            print(f"rm -fv {os.path.join(r,_f)}")
-                            # os.remove(os.path.join(r,_f))
-                        else:
-                            archive_headers.append(os.path.join(r,_f))
+        exclude_paths = ['Central_OTOC']
+        job_dirs = [x for x in os.listdir(self.ARCHIVE_PATH) if x not in exclude_paths]
+        for job_dir in job_dirs:
+            for r,d,f in os.walk(os.path.join(self.ARCHIVE_PATH,job_dir)):
+                if 'Central_OTOC' in r or "Central_OTOC" in d or "Central_OTOC" in f:
+                    continue
+                if len(d) == 0:
+                    for _f in f:
+                        if '.' not in _f:
+                            if _f.endswith('-lock'):
+                                print(f"rm -fv {os.path.join(r,_f)}")
+                                # os.remove(os.path.join(r,_f))
+                            else: 
+                                archive_headers.append(os.path.join(r,_f))
         return archive_headers
     def get_header_info(self,header_path):
         cmd = [self.ARCHINFO_PATH,header_path]
