@@ -69,7 +69,7 @@ spec:
       serviceAccountName: image-puller
       containers:
       - name: flame-archive-exporter
-        image: registry.carbonvfx.com/engineering/flame-archive-exporter:1688588598
+        image: registry.carbonvfx.com/engineering/flame-archive-exporter:1688590008
         command: ['sleep']
         args: ['600']
         env:
