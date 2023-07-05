@@ -65,10 +65,10 @@ class ArchInfo:
             if len(d) == 0:
                 for _f in f:
                     if '.' not in _f:
-                        # if _f.endswith('-lock'):
-                        #     print(f"rm -fv {os.path.join(r,_f)}")
-                        #     os.remove(os.path.join(r,_f))
-                        # else:
+                        if _f.endswith('-lock'):
+                            print(f"rm -fv {os.path.join(r,_f)}")
+                            # os.remove(os.path.join(r,_f))
+                        else:
                             archive_headers.append(os.path.join(r,_f))
         return archive_headers
     def get_header_info(self,header_path):
