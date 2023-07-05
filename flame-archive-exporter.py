@@ -60,6 +60,8 @@ class ArchInfo:
     def get_headers(self):
         archive_headers = []
         for r,d,f in os.walk(self.ARCHIVE_PATH):
+            if 'Central_OTOC' in r or "Central_OTOC" in d or "Central_OTOC" in f:
+                continue
             if len(d) == 0:
                 for _f in f:
                     if '.' not in _f:
