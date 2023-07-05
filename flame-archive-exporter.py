@@ -62,9 +62,8 @@ class ArchInfo:
         exclude_paths = ['Central_OTOC']
         job_dirs = [x for x in os.listdir(self.ARCHIVE_PATH) if x not in exclude_paths]
         for job_dir in job_dirs:
+            print(job_dir)
             for r,d,f in os.walk(os.path.join(self.ARCHIVE_PATH,job_dir)):
-                if 'Central_OTOC' in r or "Central_OTOC" in d or "Central_OTOC" in f:
-                    continue
                 if len(d) == 0:
                     for _f in f:
                         if '.' not in _f:
