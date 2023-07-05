@@ -1,0 +1,96 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: carbon-utils
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::778348368122:role/eks_image_puller_sa
+  name: image-puller
+  namespace: carbon-utils
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: regcred
+  namespace: carbon-utils
+spec:
+  parameters:
+    objects: |
+      - objectName: "regcred"
+        objectType: "secretsmanager"
+    region: us-east-2
+  provider: aws
+  secretObjects:
+  - secretName: regcred
+    type: kubernetes.io/dockerconfigjson
+    data:
+    - key: .dockerconfigjson
+      objectName: regcred
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flame-archive-exporter
+  namespace: carbon-utils
+spec:
+  selector:
+    matchLabels:
+      app: flame-archive-exporter
+  template:
+    metadata:
+      labels:
+        app: flame-archive-exporter
+    spec:
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "regcred"
+      - name: weka-jobs
+        nfs:
+          server: 10.70.50.117
+          path: /vfx
+      - name: weka-flame-archive
+        nfs:
+          server: 10.70.50.117
+          path: /flame-archive
+      - name: opt-autodesk
+        nfs:
+          server: 10.70.40.196
+          path: /opt/Autodesk
+      imagePullSecrets:
+      - name: regcred
+      serviceAccountName: image-puller
+      containers:
+      - name: flame-archive-exporter
+        image: registry.carbonvfx.com/engineering/flame-archive-exporter:1688585664
+        command: ['sleep']
+        args: ['600']
+        env:
+        - name: ARCHIVE_PATH
+          value: /weka/flame_archive
+        - name: ARCHINFO_PATH
+          value: /opt/Autodesk/io/bin/ArchInfo
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        volumeMounts:
+          - name: secrets-store-inline
+            mountPath: "/secrets-store"
+            readOnly: true
+          - name: weka-jobs
+            mountPath: /weka/vfx/
+            readOnly: true
+          - name: weka-flame-archive
+            mountPath: /weka/flame_archive/
+            readOnly: true
+          - name: opt-autodesk
+            mountPath: /opt/Autodesk
+            readOnly: true
