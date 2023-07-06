@@ -13,4 +13,4 @@ spec:
     path: /
   selector:
     matchLabels:
-      {{- include "flame-archive-exporter.selectorLabels" . | nindent 4 }}
+      {{- include "flame-archive-exporter.selectorLabels" . | nindent 5 }}
