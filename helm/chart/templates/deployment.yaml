@@ -60,17 +60,13 @@ spec:
             mountPath: "/secrets-store"
             readOnly: true
           - name: weka-jobs
-            nfs:
-              server: 10.70.50.117
-              path: /vfx
+            mountPath: /weka/vfx/
+            readOnly: true
           - name: weka-flame-archive
-            nfs:
-              server: 10.70.50.117
-              path: /flame-archive
+            mountPath: /weka/flame_archive/
+            readOnly: true
           - name: opt-autodesk
-            nfs:
-              server: 10.70.40.196
-              path: /opt/Autodesk
+            mountPath: /opt/Autodesk
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.tag }}"
