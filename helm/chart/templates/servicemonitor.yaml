@@ -4,7 +4,7 @@ kind: ServiceMonitor
 metadata:
   name: flame-archive-exporter
   labels:
-    app: flame-archive-exporter
+    app.kubernetes.io/name: flame-archive-exporter
     release: monitoring-kube-prometheus-stack
 spec:
   endpoints:
@@ -13,4 +13,4 @@ spec:
     path: /
   selector:
     matchLabels:
-      app: flame-archive-exporter
+      app.kubernetes.io/name: flame-archive-exporter
