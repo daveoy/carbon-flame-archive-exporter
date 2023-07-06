@@ -34,10 +34,6 @@ spec:
           readOnly: true
           volumeAttributes:
             secretProviderClass: "regcred"
-      - name: weka-jobs
-        nfs:
-          server: 10.70.50.117
-          path: /vfx
       - name: weka-flame-archive
         nfs:
           server: 10.70.50.117
@@ -58,9 +54,6 @@ spec:
           volumeMounts:
           - name: secrets-store-inline
             mountPath: "/secrets-store"
-            readOnly: true
-          - name: weka-jobs
-            mountPath: /weka/vfx/
             readOnly: true
           - name: weka-flame-archive
             mountPath: /weka/flame_archive/
