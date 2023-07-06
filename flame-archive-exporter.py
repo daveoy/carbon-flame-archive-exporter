@@ -99,6 +99,6 @@ numvolumesmetric = Gauge('flame_archive_num_volumes', 'Flame Archive Header Size
 compressedmetric = Gauge('flame_archive_header_size_compressed', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
 uncompressedmetric = Gauge('flame_archive_header_size_uncompressed', 'Flame Archive Header Size Before Compression',labelnames=['path','filename','created','last_modified'])
 start_http_server(int(os.environ.get('EXPORTER_PORT',9100)))
-arch_info = ArchInfo()
 while True:
+    arch_info = ArchInfo()
     time.sleep(30)
