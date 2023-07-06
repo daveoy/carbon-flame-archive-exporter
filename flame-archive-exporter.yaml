@@ -31,6 +31,39 @@ spec:
     - key: .dockerconfigjson
       objectName: regcred
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flame-archive-exporter
+  namespace: carbon-utils
+  labels:
+    app: flame-archive-exporter
+spec:
+  selector:
+    app: flame-archive-exporter
+  type: ClusterIP
+  ports:
+  - port: 9666
+    targetPort: 9666
+    name: metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: flame-archive-exporter
+  namespace: carbon-utils
+  labels:
+    app: flame-archive-exporter
+    release: monitoring-kube-prometheus-stack
+spec:
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /
+  selector:
+    matchLabels:
+      app: flame-archive-exporter
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -69,14 +102,17 @@ spec:
       serviceAccountName: image-puller
       containers:
       - name: flame-archive-exporter
-        image: registry.carbonvfx.com/engineering/flame-archive-exporter:1688590008
-        command: ['sleep']
-        args: ['600']
+        image: registry.carbonvfx.com/engineering/flame-archive-exporter:1688590758
         env:
         - name: ARCHIVE_PATH
-          value: /weka/flame_archive
+          value: '/weka/flame_archive'
         - name: ARCHINFO_PATH
-          value: /opt/Autodesk/io/bin/ArchInfo
+          value: '/opt/Autodesk/io/bin/ArchInfo'
+        - name: EXPORTER_PORT
+          value: '9666'
+        ports:
+          - containerPort: 9666
+            name: metrics
         resources:
           limits:
             memory: "512Mi"
