@@ -59,6 +59,18 @@ spec:
           - name: secrets-store-inline
             mountPath: "/secrets-store"
             readOnly: true
+          - name: weka-jobs
+            nfs:
+              server: 10.70.50.117
+              path: /vfx
+          - name: weka-flame-archive
+            nfs:
+              server: 10.70.50.117
+              path: /flame-archive
+          - name: opt-autodesk
+            nfs:
+              server: 10.70.40.196
+              path: /opt/Autodesk
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.tag }}"
