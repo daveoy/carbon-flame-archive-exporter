@@ -1,0 +1,16 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: flame-archive-exporter
+  labels:
+    app: flame-archive-exporter
+    release: monitoring-kube-prometheus-stack
+spec:
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /
+  selector:
+    matchLabels:
+      app: flame-archive-exporter
