@@ -1,0 +1,12 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: flame-archive-exporter
+build:
+  artifacts:
+    - image: registry.carbonvfx.com/engineering/flame-archive-exporter
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  rawYaml:
+    - flame-archive-exporter.yaml
