@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import os
+import time
 import subprocess as sp
+from prometheus_client import start_http_server, Gauge
 
 class Info:
     def __init__(self,header_info,header_path):
@@ -17,6 +19,14 @@ class Info:
         self.block_size = ""
         self.num_volumes = ""
         self.parse_header_info(header_info)
+        self.collect()
+    def collect(self):
+        try:
+            numvolumesmetric.labels(self.path,self.filename,self.created,self.last_modified).set(self.num_volumes)
+            compressedmetric.labels(self.path,self.filename,self.created,self.last_modified).set(self.metadata_size['compressed'])
+            uncompressedmetric.labels(self.path,self.filename,self.created,self.last_modified).set(self.metadata_size['uncompressed'])
+        except:
+            print(self.__dict__)
     def parse_header_info(self,header_info):
         """
         stripped DL database info:
@@ -81,7 +91,14 @@ class ArchInfo:
             print(err)
         return Info(out.decode().strip(),header_path)
 
+# arch_info = ArchInfo()
+# data = [{'path':x.path,'size':x.metadata_size['uncompressed']} for x in arch_info.headers]
+# for item in sorted(data, key=lambda x: (len(x['size']),x['size']),reverse=True):
+# 	print(item)
+numvolumesmetric = Gauge('flame_archive_num_volumes', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
+compressedmetric = Gauge('flame_archive_header_size_compressed', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
+uncompressedmetric = Gauge('flame_archive_header_size_uncompressed', 'Flame Archive Header Size Before Compression',labelnames=['path','filename','created','last_modified'])
+start_http_server(int(os.environ.get('EXPORTER_PORT',9100)))
 arch_info = ArchInfo()
-data = [{'path':x.path,'size':x.metadata_size['uncompressed']} for x in arch_info.headers]
-for item in sorted(data, key=lambda x: (len(x['size']),x['size']),reverse=True):
-	print(item)
+while True:
+    time.sleep(30)
