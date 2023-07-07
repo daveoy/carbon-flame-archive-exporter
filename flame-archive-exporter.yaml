@@ -93,10 +93,10 @@ spec:
         nfs:
           server: 10.70.50.117
           path: /flame-archive
-      - name: opt-autodesk
-        nfs:
-          server: 10.70.40.196
-          path: /opt/Autodesk
+      # - name: opt-autodesk
+      #   nfs:
+      #     server: 10.70.40.196
+      #     path: /opt/Autodesk
       imagePullSecrets:
       - name: regcred
       serviceAccountName: image-puller
@@ -127,5 +127,5 @@ spec:
           - name: weka-flame-archive
             mountPath: /weka/flame_archive/
             readOnly: true
-          - name: opt-autodesk
-            mountPath: /opt/Autodesk
+          # - name: opt-autodesk
+          #   mountPath: /opt/Autodesk

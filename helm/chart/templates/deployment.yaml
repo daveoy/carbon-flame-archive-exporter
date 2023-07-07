@@ -38,10 +38,10 @@ spec:
         nfs:
           server: 10.70.50.117
           path: /flame-archive
-      - name: opt-autodesk
-        nfs:
-          server: 10.70.40.196
-          path: /opt/Autodesk
+      # - name: opt-autodesk
+      #   nfs:
+      #     server: 10.70.40.196
+      #     path: /opt/Autodesk
       containers:
         - name: {{ .Chart.Name }}
           env:
@@ -58,8 +58,8 @@ spec:
           - name: weka-flame-archive
             mountPath: /weka/flame_archive/
             readOnly: true
-          - name: opt-autodesk
-            mountPath: /opt/Autodesk
+          # - name: opt-autodesk
+          #   mountPath: /opt/Autodesk
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.tag }}"
