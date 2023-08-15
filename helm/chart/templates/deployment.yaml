@@ -57,7 +57,7 @@ spec:
             readOnly: true
           - name: weka-flame-archive
             mountPath: /weka/flame_archive/
-            # readOnly: true
+            readOnly: false
           # - name: opt-autodesk
           #   mountPath: /opt/Autodesk
           securityContext:
