@@ -2,6 +2,7 @@
 import os
 import time
 import subprocess as sp
+from dateutil import parser
 from prometheus_client import start_http_server, Gauge
 
 class Info:
@@ -25,6 +26,8 @@ class Info:
             numvolumesmetric.labels(self.path,self.filename,self.created,self.last_modified).set(self.num_volumes)
             compressedmetric.labels(self.path,self.filename,self.created,self.last_modified).set(self.metadata_size['compressed'])
             uncompressedmetric.labels(self.path,self.filename,self.created,self.last_modified).set(self.metadata_size['uncompressed'])
+            lastmodifiedmetric.labels(self.path,self.filename,self.created,self.last_modified).set(parser.parse(self.last_modified).timestamp())
+            createdmetric.labels(self.path,self.filename,self.created,self.last_modified).set(parser.parse(self.created).timestamp())
         except:
             print(self.__dict__)
     def parse_header_info(self,header_info):
@@ -116,9 +119,11 @@ class ArchInfo:
             print(err)
         return Info(out.decode().strip(),header_path)
 
-numvolumesmetric = Gauge('flame_archive_num_volumes', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
-compressedmetric = Gauge('flame_archive_header_size_compressed', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
+numvolumesmetric = Gauge('flame_archive_num_volumes', 'Flame Archive Header Number of Volumes',labelnames=['path','filename','created','last_modified'])
+compressedmetric = Gauge('flame_archive_header_size_compressed', 'Flame Archive Header Sized After Compression',labelnames=['path','filename','created','last_modified'])
 uncompressedmetric = Gauge('flame_archive_header_size_uncompressed', 'Flame Archive Header Size Before Compression',labelnames=['path','filename','created','last_modified'])
+lastmodifiedmetric = Gauge('flame_archive_last_updated_seconds', 'Flame Archive Last Update timestamp',labelnames=['path','filename','created','last_modified'])
+createdmetric = Gauge('flame_archive_existence_seconds', 'Flame Archive Birthdate timestamp',labelnames=['path','filename','created','last_modified'])
 sizemetric = Gauge('carbon_flame_archives', 'Flame Archive Size On Disk',labelnames=['path','projectname'])
 start_http_server(int(os.environ.get('EXPORTER_PORT',9100)))
 while True:
