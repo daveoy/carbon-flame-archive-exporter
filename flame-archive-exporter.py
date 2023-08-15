@@ -66,8 +66,13 @@ class ArchiveSize:
         self.path = path
         self.project = projectname
         self.size = self.get_archive_size()
+        print(f"{self.project}: [{self.path}] -- {self.size}")
+        self.collect()
     def collect(self):
-        sizemetric.labels(self.path,self.project).set(self.size)
+        try:
+            sizemetric.labels(self.path,self.project).set(self.size)
+        except:
+            print(self.__dict__)
     def get_archive_size(self):
         size = 0
         for r,d,f in os.walk(self.path):
@@ -111,10 +116,6 @@ class ArchInfo:
             print(err)
         return Info(out.decode().strip(),header_path)
 
-# arch_info = ArchInfo()
-# data = [{'path':x.path,'size':x.metadata_size['uncompressed']} for x in arch_info.headers]
-# for item in sorted(data, key=lambda x: (len(x['size']),x['size']),reverse=True):
-# 	print(item)
 numvolumesmetric = Gauge('flame_archive_num_volumes', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
 compressedmetric = Gauge('flame_archive_header_size_compressed', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
 uncompressedmetric = Gauge('flame_archive_header_size_uncompressed', 'Flame Archive Header Size Before Compression',labelnames=['path','filename','created','last_modified'])
