@@ -61,16 +61,36 @@ class Info:
             elif line[0] == "# of volumes":
                 self.num_volumes = line[-1].strip()
 
+class ArchiveSize:
+    def __init__(self,path,projectname):
+        self.path = path
+        self.project = projectname
+        self.size = self.get_archive_size()
+    def collect(self):
+        sizemetric.labels(self.path,self.project).set(self.size)
+    def get_archive_size(self):
+        size = 0
+        for r,d,f in os.walk(self.path):
+            for file in f:
+                try:
+                    size+=os.stat(os.path.join(r,file)).st_size
+                except OSError:
+                    pass
+        return size
+ 
 class ArchInfo:
     def __init__(self):
         self.ARCHINFO_PATH = os.environ.get('ARCHINFO_PATH', '/opt/Autodesk/io/bin/ArchInfo')
         self.ARCHIVE_PATH = os.environ.get('ARCHIVE_PATH', '/mnt/flame_archive')
+        self.job_dirs = []
         self.header_files = self.get_headers()
         self.headers = [self.get_header_info(x) for x in self.header_files]
+        self.archive_sizes = [ArchiveSize(os.path.join(self.ARCHIVE_PATH,x),x) for x in self.job_dirs]
     def get_headers(self):
         archive_headers = []
         exclude_paths = ['Central_OTOC']
         job_dirs = [x for x in os.listdir(self.ARCHIVE_PATH) if x not in exclude_paths]
+        setattr(self,"job_dirs",job_dirs)
         for job_dir in job_dirs:
             print(job_dir)
             for r,d,f in os.walk(os.path.join(self.ARCHIVE_PATH,job_dir)):
@@ -79,7 +99,7 @@ class ArchInfo:
                         if '.' not in _f:
                             if _f.endswith('-lock'):
                                 print(f"rm -fv {os.path.join(r,_f)}")
-                                # os.remove(os.path.join(r,_f))
+                                os.remove(os.path.join(r,_f))
                             else: 
                                 archive_headers.append(os.path.join(r,_f))
         return archive_headers
@@ -98,6 +118,7 @@ class ArchInfo:
 numvolumesmetric = Gauge('flame_archive_num_volumes', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
 compressedmetric = Gauge('flame_archive_header_size_compressed', 'Flame Archive Header Sized Before Compression',labelnames=['path','filename','created','last_modified'])
 uncompressedmetric = Gauge('flame_archive_header_size_uncompressed', 'Flame Archive Header Size Before Compression',labelnames=['path','filename','created','last_modified'])
+sizemetric = Gauge('carbon_flame_archives', 'Flame Archive Size On Disk',labelnames=['path','projectname'])
 start_http_server(int(os.environ.get('EXPORTER_PORT',9100)))
 while True:
     arch_info = ArchInfo()
